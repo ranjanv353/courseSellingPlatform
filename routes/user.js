@@ -1,8 +1,5 @@
 import {Router} from "express"
 
-
-// const Router =  express.Router;
-
 const userRouter = Router();
 
 userRouter.post("/signup", (req, res) => {
@@ -19,7 +16,7 @@ userRouter.post("/signin", (req, res) => {
 
 userRouter.get("/purchases", (req, res) => {
     res.json({
-        message: "signin endpoint"
+        message: "purchased course endpoint"
     })
 })
 

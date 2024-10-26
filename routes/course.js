@@ -2,15 +2,15 @@ import {Router} from "express"
 
 const courseRouter = Router();
 
-courseRouter.post("/course/purchase", (req, res) => {
+courseRouter.post("/purchase", (req, res) => {
     res.json({
-        message: "signin endpoint"
+        message: "course purchase endpoint"
     })
 })
 
-courseRouter.get("/courses", (req, res) => {
+courseRouter.get("/preview", (req, res) => {
     res.json({
-        message: "signin endpoint"
+        message: "course preview endpoint"
     })
 })
 
