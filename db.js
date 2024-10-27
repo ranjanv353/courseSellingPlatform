@@ -5,6 +5,7 @@ import mongoose, {Schema, ObjectId} from "mongoose"
 const userSchema = new Schema({
     email: {type: String, unique: true},
     password: String,
+    salt: String,
     firstName: String,
     lastName: String,
 });
@@ -12,6 +13,7 @@ const userSchema = new Schema({
 const adminSchema = new Schema({
     email: {type: String, unique: true},
     password: String,
+    salt: String,
     firstName: String,
     lastName: String,
 });
@@ -21,7 +23,7 @@ const courseSchema = new Schema({
     description: String,
     price: Number,
     imageUrl: String,
-    creatorId: ObjectId,
+    creatorId: {type: ObjectId, ref: 'admin'},
 });
 
 const purchaseSchema = new Schema({

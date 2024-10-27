@@ -1,7 +1,7 @@
 #Igonre node_modules
 node_modules/
 
-#ignore .env variables
+#Ignore .env variables
 .env
 
 
