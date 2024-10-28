@@ -1,5 +1,6 @@
 import {Router} from "express";
 import { adminModel } from "../db.js";
+import { courseModel } from "../db.js";
 import jwt from "jsonwebtoken";
 import {z} from "zod";
 import bcrypt from "bcrypt";
@@ -28,7 +29,6 @@ adminRouter.post("/signup", async (req,res) =>{
     try {
 
         const validatedData = signupSchema.parse(req.body);
-        // console.log(validatedData);
         const adminExists = await adminModel.findOne({email: validatedData.email});
 
         if (!adminExists) {
@@ -69,7 +69,7 @@ adminRouter.post("/signin", async (req,res) =>{
         const isPasswordvalid = await bcrypt.compare(password + admin.salt , admin.password);
         console.log(isPasswordvalid);
         if(!isPasswordvalid)  return res.status(401).json({message: "Invalid Credentials"});
-        const token = await jwt.sign({id: admin._id},process.env.JWT_SECRET, {expiresIn: "1h"});
+        const token = jwt.sign({id: admin._id},process.env.JWT_SECRET, {expiresIn: "1h"});
         console.log(token)
         res.json({message: "Login Successful", token});
     }
@@ -78,9 +78,22 @@ adminRouter.post("/signin", async (req,res) =>{
     }
 })
 
-adminRouter.post("/course", extractAdminFromToken ,(req,res) =>{
-    const admin = adminModel.findById({_id: req.id});
-    console.log(admin);
+adminRouter.post("/course", extractAdminFromToken, async (req,res) =>{
+    const {title, description, price, imageUrl} = req.body;
+    try{
+        const course = await courseModel.create({
+            title: title,
+            description: description,
+            price: price,
+            imageUrl: imageUrl,
+            creatorId: req.id  
+        });
+        res.send(course);
+    }
+    catch (error){
+        console.log(error);
+    }
+    
 
     
 })
@@ -89,8 +102,14 @@ adminRouter.put("/course", (req,res) =>{
    
 })
 
-adminRouter.post("/course/bulk", (req,res) =>{
-    
-})
+adminRouter.post("/course/bulk", extractAdminFromToken, async (req, res) => {
+    try {
+        const courses = await courseModel.find().populate("creatorId");
+        res.status(200).json({ success: true, data: courses });
+    } catch (error) {
+        console.error("Error fetching courses:", error.message);
+        res.status(500).json({ success: false, message: "Failed to fetch courses. Please try again later." });
+    }
+});
 
 export {adminRouter}
