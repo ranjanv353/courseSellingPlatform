@@ -21,5 +21,11 @@ const signupSchema = z.object({
       .regex(/[@$!%*?&]/, { message: "Password must contain at least one special character (@, $, !, %, *, ?, &)" })
   });
 
+  const signinSchema = z.object({
 
-export {signupSchema};
+    email: z.string().email({ message: "Invalid email address" }),
+
+  });
+
+
+export {signupSchema, signinSchema};

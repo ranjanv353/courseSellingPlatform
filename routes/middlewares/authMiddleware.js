@@ -1,10 +1,9 @@
 import jwt from "jsonwebtoken";
-import { adminModel } from "../../db.js";
 
-const extractAdminFromToken = async (req,res, next) =>{
+const verifyTokenAndAuthorize = async (req,res, next) =>{
     const token = req.headers['authorization']?.split(" ")[1];
     if(!token){
-        return res.status(401).json({message: 'Admin not authenticated'});
+        return res.status(401).json({message: 'User not authenticated'});
     }
     try{
         const decoded = jwt.verify(token, process.env.JWT_SECRET)
@@ -16,4 +15,4 @@ const extractAdminFromToken = async (req,res, next) =>{
     }
 }
 
-export {extractAdminFromToken}
+export {verifyTokenAndAuthorize}

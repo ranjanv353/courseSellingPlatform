@@ -1,7 +1,5 @@
 import mongoose, {Schema, ObjectId} from "mongoose"
 
-// await mongoose.connect("mongodb+srv://ranjanv353:pKc46JkwbOXj4oS8@cluster0.c1reb.mongodb.net/courseSellingPlatform");
-
 const userSchema = new Schema({
     email: {type: String, unique: true},
     password: String,

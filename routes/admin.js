@@ -6,11 +6,9 @@ import {z} from "zod";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import { signupSchema } from "./authschema.js";
-import { extractAdminFromToken } from "./middlewares/extractAdminFromToken.js";
+import { verifyTokenAndAuthorize } from "./middlewares/authMiddleware.js";
 
 const adminRouter = Router();
-
-
 
 adminRouter.post("/signup", async (req,res) =>{
     // const {email, password, firstName, lastName} =  req.body;
@@ -25,7 +23,6 @@ adminRouter.post("/signup", async (req,res) =>{
             console.error("Error hashing password: ", error);
         }
     }
-
     try {
 
         const validatedData = signupSchema.parse(req.body);
@@ -61,7 +58,6 @@ adminRouter.post("/signup", async (req,res) =>{
 
 adminRouter.post("/signin", async (req,res) =>{
     const {email, password} =  req.body;
-    console.log(req.body);
     try{
         const admin = await adminModel.findOne({email});
         console.log(admin);
@@ -78,7 +74,9 @@ adminRouter.post("/signin", async (req,res) =>{
     }
 })
 
-adminRouter.post("/course", extractAdminFromToken, async (req,res) =>{
+adminRouter.use(verifyTokenAndAuthorize);
+
+adminRouter.post("/course", async (req,res) =>{
     const {title, description, price, imageUrl} = req.body;
     try{
         const course = await courseModel.create({
@@ -92,19 +90,59 @@ adminRouter.post("/course", extractAdminFromToken, async (req,res) =>{
     }
     catch (error){
         console.log(error);
+    }    
+})
+
+adminRouter.put("/course", async (req,res) =>{
+    const updatedCourseData = req.body;
+    if (!updatedCourseData._id || updatedCourseData.__v === undefined) {
+        return res.status(400).json({
+            success: false,
+            message: "Course ID and version are required for update."
+        });
     }
-    
-
-    
-})
-
-adminRouter.put("/course", (req,res) =>{
-   
-})
-
-adminRouter.post("/course/bulk", extractAdminFromToken, async (req, res) => {
+    const { __v, ...dataToUpdate } = updatedCourseData; 
+    console.log(dataToUpdate)
     try {
-        const courses = await courseModel.find().populate("creatorId");
+        const courseData = await courseModel.findOneAndUpdate(
+            { _id: updatedCourseData._id, __v: updatedCourseData.__v },  
+            { $set: dataToUpdate, $inc: { __v: 1 } },                                   
+            { new: true }                                             
+        )
+        console.log(courseData);
+        if (!courseData) {
+            return res.status(409).json({
+                success: false,
+                message: "Document has been updated by another user. Please refresh and try again."
+            });
+        }
+        res.status(200).json({ success: true, data: courseData });
+    }
+    catch (error) {
+        console.error("Error updating course:", error.message);
+        res.status(500).json({ success: false, message: "Failed to update course. Please try again later." });
+    }
+})
+
+adminRouter.get("/course", async (req, res) => {
+    try {
+        const courses = await courseModel.findOne({creatorId: req.id}).populate({
+            path: 'creatorId',
+            select: 'firstName lastName email' 
+        });
+        res.status(200).json({ success: true, data: courses });
+    } catch (error) {
+        console.error("Error fetching courses:", error.message);
+        res.status(500).json({ success: false, message: "Failed to fetch courses. Please try again later." });
+    }
+});
+
+adminRouter.get("/course/bulk", async (req, res) => {
+    try {
+        const courses = await courseModel.find().populate({
+            path: 'creatorId',
+            select: 'firstName lastName email' 
+        });
         res.status(200).json({ success: true, data: courses });
     } catch (error) {
         console.error("Error fetching courses:", error.message);
