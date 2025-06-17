@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Selling Platform</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h1 { color: #333; }
+        form { margin-bottom: 20px; }
+        label { display: block; margin-top: 10px; }
+        input { padding: 5px; margin-top: 5px; }
+        button { margin-top: 10px; }
+        #coursesList li { margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Course Selling Platform</h1>
+
+    <section id="userAuth">
+        <h2>User Signup</h2>
+        <form id="userSignupForm">
+            <label>First Name <input name="firstName" required></label>
+            <label>Last Name <input name="lastName" required></label>
+            <label>Email <input type="email" name="email" required></label>
+            <label>Password <input type="password" name="password" required></label>
+            <button type="submit">Signup</button>
+        </form>
+
+        <h2>User Login</h2>
+        <form id="userLoginForm">
+            <label>Email <input type="email" name="email" required></label>
+            <label>Password <input type="password" name="password" required></label>
+            <button type="submit">Login</button>
+        </form>
+    </section>
+
+    <section id="adminAuth">
+        <h2>Admin Signup</h2>
+        <form id="adminSignupForm">
+            <label>First Name <input name="firstName" required></label>
+            <label>Last Name <input name="lastName" required></label>
+            <label>Email <input type="email" name="email" required></label>
+            <label>Password <input type="password" name="password" required></label>
+            <button type="submit">Signup</button>
+        </form>
+
+        <h2>Admin Login</h2>
+        <form id="adminLoginForm">
+            <label>Email <input type="email" name="email" required></label>
+            <label>Password <input type="password" name="password" required></label>
+            <button type="submit">Login</button>
+        </form>
+    </section>
+
+    <section id="courseSection">
+        <h2>Available Courses</h2>
+        <button id="loadCourses">Load Courses</button>
+        <ul id="coursesList"></ul>
+    </section>
+
+    <section id="createCourseSection">
+        <h2>Create Course (Admin)</h2>
+        <form id="createCourseForm">
+            <label>Title <input name="title" required></label>
+            <label>Description <input name="description" required></label>
+            <label>Price <input name="price" type="number" required></label>
+            <label>Image URL <input name="imageUrl" required></label>
+            <button type="submit">Create Course</button>
+        </form>
+    </section>
+
+    <script src="app.js"></script>
+</body>
+</html>
