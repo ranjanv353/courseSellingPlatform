@@ -21,10 +21,9 @@ const signupSchema = z.object({
       .regex(/[@$!%*?&]/, { message: "Password must contain at least one special character (@, $, !, %, *, ?, &)" })
   });
 
-  const signinSchema = z.object({
-
+const signinSchema = z.object({
     email: z.string().email({ message: "Invalid email address" }),
-
+    password: z.string().min(1, { message: "Password is required" })
   });
 
 
