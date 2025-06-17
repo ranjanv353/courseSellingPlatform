@@ -1,11 +1,12 @@
 import {Router} from "express"
 import { userModel } from "../db.js";
-import { courseModel } from "../db.js";
+import { courseModel, purchaseModel } from "../db.js";
 import jwt from "jsonwebtoken";
 import {z} from "zod";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import { signupSchema, signinSchema } from "./authschema.js";
+import { verifyTokenAndAuthorize } from "./middlewares/authMiddleware.js";
 
 
 const userRouter = Router();
@@ -79,11 +80,41 @@ userRouter.post("/signin", async (req, res) => {
     }
 })
 
-userRouter.get("/purchases", (req, res) => {
-    res.json({
-        message: "purchased course endpoint"
-    })
-})
+// Public endpoint to fetch all available courses
+userRouter.get("/courses", async (req, res) => {
+    try {
+        const courses = await courseModel.find();
+        res.status(200).json({ success: true, data: courses });
+    } catch (error) {
+        res.status(500).json({ message: "Failed to fetch courses" });
+    }
+});
+
+// Purchase a course
+userRouter.post("/courses/:courseId", verifyTokenAndAuthorize, async (req, res) => {
+    const { courseId } = req.params;
+    try {
+        const course = await courseModel.findById(courseId);
+        if (!course) {
+            return res.status(404).json({ message: "Course not found" });
+        }
+        await purchaseModel.create({ userId: req.id, courseID: courseId });
+        res.status(200).json({ message: "Course purchased successfully" });
+    } catch (error) {
+        res.status(500).json({ message: "Failed to purchase course" });
+    }
+});
+
+// Get all purchased courses for the logged in user
+userRouter.get("/purchasedCourses", verifyTokenAndAuthorize, async (req, res) => {
+    try {
+        const purchases = await purchaseModel.find({ userId: req.id }).populate("courseID");
+        const courses = purchases.map((p) => p.courseID);
+        res.status(200).json({ success: true, data: courses });
+    } catch (error) {
+        res.status(500).json({ message: "Failed to fetch purchased courses" });
+    }
+});
 
 export {userRouter}
 

@@ -141,12 +141,26 @@ adminRouter.get("/course/bulk", async (req, res) => {
     try {
         const courses = await courseModel.find().populate({
             path: 'creatorId',
-            select: 'firstName lastName email' 
+            select: 'firstName lastName email'
         });
         res.status(200).json({ success: true, data: courses });
     } catch (error) {
         console.error("Error fetching courses:", error.message);
         res.status(500).json({ success: false, message: "Failed to fetch courses. Please try again later." });
+    }
+});
+
+// Delete a course created by the logged in admin
+adminRouter.delete("/course/:courseId", async (req, res) => {
+    const { courseId } = req.params;
+    try {
+        const deleted = await courseModel.findOneAndDelete({ _id: courseId, creatorId: req.id });
+        if (!deleted) {
+            return res.status(404).json({ message: "Course not found" });
+        }
+        res.status(200).json({ message: "Course deleted successfully" });
+    } catch (error) {
+        res.status(500).json({ message: "Failed to delete course" });
     }
 });
 
