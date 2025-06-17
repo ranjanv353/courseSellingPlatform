@@ -62,7 +62,7 @@ userRouter.post("/signin", async (req, res) => {
         const validatedData = signinSchema.parse(req.body);
         const user = await userModel.findOne({email: validatedData.email});
         if (!user) return res.status(404).json({ message: 'User not found' });
-        const isPasswordvalid = await bcrypt.compare(req.body.password + user.salt , user.password);
+        const isPasswordvalid = await bcrypt.compare(validatedData.password + user.salt , user.password);
         if(!isPasswordvalid)  return res.status(401).json({message: "Invalid Credentials"});
         const token = jwt.sign({id: user._id},process.env.JWT_SECRET);
         res.json({message: "Login Successful", token});
